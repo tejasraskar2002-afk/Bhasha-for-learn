@@ -1,40 +1,34 @@
-# Marathi2India AI Translator — मोबाईल सेटअप
+# Marathi2India — BHASHINI API bridge (starter)
 
-## या आवृत्तीत काय चालते?
-- मोबाइल-फ्रेंडली PWA स्क्रीन
-- मराठी मजकूर इनपुट
-- २२ अनुसूचित भारतीय भाषांसह भाषा निवड
-- Chrome मध्ये समर्थित असल्यास १ मिनिट ५० सेकंदांपर्यंत voice-to-text
-- कॉपी आणि उपलब्ध असल्यास text-to-speech
+ही API bridge फाइल आहे; API key समाविष्ट नाही. BHASHINI API key प्रत्येक वापरकर्त्याला स्वतःच्या खात्यातून मिळवावी लागते.
 
-## महत्त्वाची मर्यादा
-या पहिल्या आवृत्तीत AI भाषांतर API जोडलेली नाही. `index.html` मधील `const API_URL=""` ही जागा तुमच्या स्वतःच्या backend endpoint ने बदलल्याशिवाय भाषांतर होणार नाही. API key कधीही सार्वजनिक HTML/JavaScript मध्ये ठेवू नका.
+## आधी हे करा
+1. BHASHINI onboarding: https://bhashini.gov.in/
+2. अधिकृत API docs: https://tts.bhashini.ai/openapi/ui/
+3. BHASHINI ULCA/UDYAT pipeline setup आणि API credentials: https://bhashini.gitbook.io/bhashini-apis/pre-requisites-and-onboarding
+4. तुमच्या account मधील translation pipeline configuration response मधून `callbackURL`, auth header/value आणि Marathi→target language साठी translation `serviceId` मिळवा. हे values तुमच्या account/model वर अवलंबून असतात; या पॅकेजमध्ये बनावट values नाहीत.
 
-## Samsung Android वरून प्रकाशित करण्याची सोपी पद्धत
-1. ZIP extract करा (Files/My Files अॅप वापरा).
-2. GitHub खाते तयार करा किंवा लॉग इन करा: https://github.com
-3. नवीन public repository तयार करा, उदा. `marathi2india-pwa`.
-4. `index.html`, `manifest.json`, `sw.js` आणि `README_MR.md` या फाइल्स repository मध्ये upload करा.
-5. Repository → Settings → Pages → Deploy from a branch → `main` आणि `/(root)` निवडा → Save.
-6. काही मिनिटांनी GitHub Pages ने दिलेली HTTPS वेबसाइट Chrome मध्ये उघडा.
-7. Chrome ⋮ → Add to Home screen / Install app निवडा.
+## सर्व्हरवर चालवा
+ही पायरी hosted Python service वर करावी लागेल; फक्त Samsung फोनवर ZIP उघडल्याने API चालणार नाही.
+1. `app.py`, `requirements.txt`, `.env.example` सर्व्हर/hosting प्रकल्पात upload करा.
+2. hosting dashboard मध्ये environment variables सेट करा (`.env.example` मधील नावे).
+3. Start command: `uvicorn app:app --host 0.0.0.0 --port $PORT`
+4. Health check: `GET /`
+5. Translate endpoint: `POST /api/translate`
 
-## पूर्ण AI भाषांतर जोडण्याचा पुढचा टप्पा
-IndicTrans2 २२ अनुसूचित भारतीय भाषांसाठी open-source मॉडेल आहे:
-https://github.com/AI4Bharat/IndicTrans2
-
-हे मॉडेल चालवण्यासाठी Python/ML सर्व्हर किंवा अधिकृत hosted API आवश्यक आहे. फक्त static GitHub Pages वर मॉडेल चालणार नाही. सर्व्हर endpoint ने खालील स्वरूप स्वीकारावे:
-
-POST JSON:
+Request JSON:
 {"text":"मला इंग्रजी शिकायचे आहे","source":"mar_Deva","target":"eng_Latn"}
 
 Response JSON:
 {"translation":"I want to learn English."}
 
-Endpoint URL `index.html` मधील `const API_URL=""` मध्ये द्या. Backend मध्ये CORS फक्त तुमच्या वेबसाइटसाठी उघडा, इनपुटची मर्यादा ठेवा, आणि API credentials server-side environment variables मध्ये ठेवा.
+## PWA मध्ये जोडणी
+तुमच्या `index.html` मधील `const API_URL=""` ऐवजी सर्व्हरची HTTPS URL + `/api/translate` द्या.
+उदा. `https://YOUR-SERVER.example/api/translate`
+हे उदाहरण URL आहे; तो प्रत्यक्ष सर्व्हर नाही.
 
-## Professional English सुधारणा
-यासाठी backend मध्ये स्वतंत्र सुरक्षित endpoint किंवा language-model API जोडावी लागेल. Translation आणि grammar correction या वेगळ्या प्रक्रिया ठेवा, जेणेकरून अर्थ बदलणार नाही.
-
-## गोपनीयता
-माइक वापरताना Chrome permission मागू शकतो. Speech Recognition काही डिव्हाइसवर cloud सेवा वापरू शकते. गोपनीय माहिती/आधार क्रमांक/पासवर्ड बोलू नका.
+## सुरक्षितता
+- API key कधीही `index.html` किंवा GitHub public repository मध्ये ठेवू नका.
+- `ALLOWED_ORIGIN` मध्ये तुमच्या वेबसाइटचा नेमका HTTPS origin लिहा.
+- BHASHINI pipeline configuration / service ID भाषा जोडीप्रमाणे बदलू शकते; २२ भाषांमध्ये उपलब्धता स्वतंत्रपणे तपासा.
+- Grammar correction / Professional English endpoint या bridge मध्ये अजून समाविष्ट नाही; त्यासाठी वेगळी सुरक्षित AI सेवा जोडावी लागेल.
